@@ -39,7 +39,12 @@ import { SheetClose } from "@/components/ui/sheet";
 import type { Task } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { deleteTask, insertTask, updateTask } from "@/lib/actions/tasks";
+import {
+  connectTrello,
+  deleteTask,
+  insertTask,
+  updateTask,
+} from "@/lib/actions/tasks";
 import { Context } from "@/components/provider/ContextProvider";
 import {
   DropdownMenu,
@@ -189,6 +194,10 @@ const TaskForm = ({
       titleInputRef.current.focus();
     }
   }, []);
+  async function addToTrello() {
+    console.log("Called");
+    await connectTrello();
+  }
 
   return (
     <>
@@ -215,7 +224,10 @@ const TaskForm = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent className="mr-[30px]" align="center">
               <DropdownMenuItem className="group/add cursor-pointer">
-                <div className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] ">
+                <div
+                  onClick={() => addToTrello()}
+                  className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
+                >
                   <Plus className="w-4 h-4" /> Add Task to Trello
                 </div>
               </DropdownMenuItem>

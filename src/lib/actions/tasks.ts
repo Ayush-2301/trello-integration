@@ -7,6 +7,7 @@ import { revalidateTag } from "next/cache";
 import { TaskForm } from "@/app/(Dashboard)/(home)/schema";
 import { createSupabaseServerClient } from "../supabase/server";
 const SERVER_URL = process.env.SERVER_URL;
+const TRELLO_API_KEY = process.env.TRELLO_API_KEY;
 
 export const getAllTasks = async () => {
   try {
@@ -194,4 +195,15 @@ export const getAllTaskByWatchlistID = async ({
   } catch (error) {
     throw new Error("Error fetching tasks");
   }
+};
+
+export const connectTrello = async () => {
+  try {
+    const res = await fetch(
+      `https://trello.com/1/authorize?expiration=1day&name=MyPersonalToken&scope=read&response_type=token&key=${TRELLO_API_KEY}`
+    );
+    console.log(res);
+    const token = await res.json();
+    console.log(token);
+  } catch (error) {}
 };
