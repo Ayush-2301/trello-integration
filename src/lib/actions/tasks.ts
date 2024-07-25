@@ -200,7 +200,7 @@ export const getAllTaskByWatchlistID = async ({
 export const connectTrello = async () => {
   try {
     const res = await fetch(
-      `https://trello.com/1/authorize?expiration=1day&name=MyPersonalToken&scope=read&response_type=token&key=${TRELLO_API_KEY}`
+      ` https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&key=${TRELLO_API_KEY}`
     );
     console.log(res);
     const token = await res.json();
