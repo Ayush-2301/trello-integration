@@ -14,8 +14,6 @@ const Navbar = ({ children }: { children: React.ReactNode }) => {
           />
         </h1>
         <div className="flex space-x-6 font-medium ">
-          <Link href={"/"}>Home</Link>
-          <Link href={"/watchlist"}>Watch Lists</Link>
           <Link href={"/"}>Tasks</Link>
           <Link href={"/settings"}>Settings</Link>
         </div>

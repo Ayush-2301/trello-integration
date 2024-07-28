@@ -25,7 +25,12 @@ import {
 import { Box } from "@/components/ui/box";
 
 import { useState, createElement } from "react";
-import { CheckSquare2, EyeIcon, EyeOffIcon } from "lucide-react";
+import {
+  CheckSquare2,
+  EllipsisVertical,
+  EyeIcon,
+  EyeOffIcon,
+} from "lucide-react";
 import { AccessTokenForm, accessTokenSchema } from "../schema";
 import { updateProfile } from "@/lib/actions/profile";
 import { useToast } from "@/components/ui/use-toast";
@@ -131,10 +136,43 @@ const IntegrationForm = ({
           </CardContent>
         </Card>
       ) : (
-        <Label className="flex items-center gap-2 text-3xl font-semibold">
-          Trello Account is Connected{" "}
-          <CheckSquare2 className="w-8 h-8  text-green-500" />{" "}
-        </Label>
+        <>
+          <div className="p-4 bg-gray-100 rounded-md">
+            <Label className="flex items-center gap-2 text-2xl font-semibold mb-2">
+              Trello Account is Connected
+              <CheckSquare2 className="w-8 h-8 text-green-500" />
+            </Label>
+            <ul className="list-disc list-inside text-lg space-y-2">
+              <li>
+                Go to the <strong>Tasks</strong> page and click on a particular
+                task.
+              </li>
+              <li>
+                Open the three-dot menu{" "}
+                <EllipsisVertical className="inline-block bg-white p-1 rounded-md" />{" "}
+                and select <strong>Add Task to Trello</strong>.
+              </li>
+              <li>
+                A board named <strong>InsightFlow</strong> is created, and
+                inside that board, a list named{" "}
+                <strong>InsightFlow Tasks</strong> is created.
+              </li>
+              <li>
+                New cards will be added to the{" "}
+                <strong>InsightFlow Tasks</strong> list for each connected task.
+              </li>
+              <li>
+                Once a task is added to Trello, you can disconnect it to stop
+                syncing changes.
+              </li>
+            </ul>
+          </div>
+          {/* <Label className="flex items-center gap-2 text-3xl font-semibold">
+            Trello Account is Connected
+            <CheckSquare2 className="w-8 h-8  text-green-500" />{" "}
+            </Label>
+            <p>Go to the Tasks page and click on a particul</p> */}
+        </>
       )}
       <Card>
         <CardHeader>
