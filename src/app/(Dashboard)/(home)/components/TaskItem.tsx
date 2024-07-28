@@ -69,7 +69,7 @@ const TaskItem = ({ data }: { data: Task }) => {
           </div>
         </div>
         <div className="ml-4 text-gray-600 self-end">
-          Assigned to : {data.assigned_to}
+          Assigned to : {data.assignedTo}
         </div>
       </div>
     </div>

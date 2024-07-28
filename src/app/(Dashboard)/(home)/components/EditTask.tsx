@@ -10,18 +10,20 @@ import {
 
 import TaskForm from "./TaskForm";
 import { Context } from "@/components/provider/ContextProvider";
-import { Task } from "@/lib/types";
+import { Profile, Task } from "@/lib/types";
 import { getSingleTask } from "@/lib/actions/tasks";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
+import { getProfile } from "@/lib/actions/profile";
 
 export function EditTask({ userID }: { userID: string }) {
   const { toast } = useToast();
   const { taskID, setTaskID, openSheet, setOpenSheet } = useContext(Context);
   const [isLoading, setLoading] = useState(false);
   const [initialValue, setInitialValue] = useState<Task | null>(null);
+  const [profile, setProfile] = useState<Profile | null>(null);
 
   useEffect(() => {
     if (taskID) {
@@ -29,6 +31,7 @@ export function EditTask({ userID }: { userID: string }) {
       setLoading(true);
       const fetchTask = async () => {
         const task = await getSingleTask({ id: taskID });
+        const profile = await getProfile();
         if ("error" in task) {
           toast({
             title: "Error fetching task",
@@ -38,6 +41,7 @@ export function EditTask({ userID }: { userID: string }) {
           setTaskID("");
         } else {
           setInitialValue(task || null);
+          setProfile(profile || null);
           setLoading(false);
         }
       };
@@ -66,6 +70,7 @@ export function EditTask({ userID }: { userID: string }) {
           <TaskFormSkeleton />
         ) : (
           <TaskForm
+            profile={profile}
             initialData={initialValue}
             taskID={taskID}
             userID={userID}

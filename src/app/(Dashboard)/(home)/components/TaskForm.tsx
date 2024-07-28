@@ -21,6 +21,7 @@ import {
   EllipsisVertical,
   Plus,
   Trello,
+  Unplug,
 } from "lucide-react";
 import {
   Form,
@@ -36,12 +37,13 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { SheetClose } from "@/components/ui/sheet";
-import type { Task } from "@/lib/types";
+import type { Profile, Task } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import {
-  connectTrello,
+  addTaskToTrello,
   deleteTask,
+  disconnectTaskFromTrello,
   insertTask,
   updateTask,
 } from "@/lib/actions/tasks";
@@ -80,10 +82,12 @@ const TaskForm = ({
   initialData,
   taskID,
   userID,
+  profile,
 }: {
   initialData: Task | null;
   taskID?: string;
   userID: string;
+  profile: Profile | null;
 }) => {
   const router = useRouter();
   const { toast } = useToast();
@@ -105,7 +109,7 @@ const TaskForm = ({
         approved: false,
         priority: "Low",
         deadline: new Date(),
-        assigned_to: "To Self",
+        assignedTo: "To Self",
         created_at: new Date(),
       };
   if (defaultValues.description === "No Description Provided") {
@@ -159,7 +163,7 @@ const TaskForm = ({
       priority: form.getValues("priority") || "Low",
       approved: false,
       deadline: form.getValues("deadline") || new Date(),
-      assigned_to: form.getValues("assigned_to") || "To Self",
+      assignedTo: form.getValues("assignedTo") || "To Self",
     };
     if (initialData) {
       if (taskID) update({ newTask, taskID });
@@ -195,8 +199,36 @@ const TaskForm = ({
     }
   }, []);
   async function addToTrello() {
-    console.log("Called");
-    await connectTrello();
+    if (initialData && profile?.accessToken && profile.listId) {
+      const res = await addTaskToTrello({
+        name: initialData.title,
+        desc: initialData.description,
+        taskid: initialData.id,
+        access_token: profile?.accessToken,
+        list_id: profile.listId,
+      });
+      if (res) {
+        toast({
+          title: "Task added to Trello successfully",
+        });
+        setOpenSheet((prev) => !prev);
+        setTaskID("");
+        router.push("/");
+      }
+    }
+  }
+  async function disconnectTrello() {
+    if (initialData && initialData.cardId) {
+      const res = await disconnectTaskFromTrello({ taskid: initialData.id });
+      if (res) {
+        toast({
+          title: "Task disconnected from Trello successfully",
+        });
+        setOpenSheet((prev) => !prev);
+        setTaskID("");
+        router.push("/");
+      }
+    }
   }
 
   return (
@@ -216,23 +248,56 @@ const TaskForm = ({
             <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
             <p className="text-sm text-muted-foreground">{description}</p>
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button type="button" variant={"ghost"}>
-                <EllipsisVertical className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="mr-[30px]" align="center">
-              <DropdownMenuItem className="group/add cursor-pointer">
-                <div
-                  onClick={() => addToTrello()}
-                  className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
-                >
-                  <Plus className="w-4 h-4" /> Add Task to Trello
-                </div>
-              </DropdownMenuItem>
+          {initialData && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant={"ghost"}>
+                  <EllipsisVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="mr-[30px]" align="center">
+                {profile?.accessToken && profile.boardId && (
+                  <>
+                    {initialData.cardId === null ? (
+                      <DropdownMenuItem className="group/add cursor-pointer">
+                        <div
+                          onClick={() => addToTrello()}
+                          className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
+                        >
+                          <Plus className="w-4 h-4" /> Add Task to Trello
+                        </div>
+                      </DropdownMenuItem>
+                    ) : (
+                      <DropdownMenuItem className=" group/disconnect cursor-pointer">
+                        <div
+                          onClick={() => disconnectTrello()}
+                          className="flex justify-start items-center gap-2 cursor-pointer group-hover/disconnect:text-red-500 "
+                        >
+                          <Unplug className="w-4 h-4" /> Disconnect Task from
+                          Trello
+                        </div>
+                      </DropdownMenuItem>
+                    )}
+                  </>
+                  // <DropdownMenuItem className="group/add cursor-pointer">
+                  //   {!initialData.card_id ? (
+                  //     <div
+                  //       onClick={() => addToTrello()}
+                  //       className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
+                  //     >
+                  //       <Plus className="w-4 h-4" /> Add Task to Trello
+                  //     </div>
+                  //   ) : (
+                  //     <div
+                  //       onClick={() => disconnectTrello()}
+                  //       className="flex justify-start items-center gap-2 cursor-pointer group-hover/add:text-[#0079bf] "
+                  //     >
+                  //       <Plus className="w-4 h-4" /> Disconnect Task from Trello
+                  //     </div>
+                  //   )}
+                  // </DropdownMenuItem>
+                )}
 
-              {initialData && (
                 <DropdownMenuItem className="group/delete cursor-pointer">
                   <div
                     onClick={() => setOpen(true)}
@@ -241,9 +306,9 @@ const TaskForm = ({
                     <Trash className="w-4 h-4" /> Delete
                   </div>
                 </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
           {/* 
           {initialData && (
             <Button
@@ -328,7 +393,7 @@ const TaskForm = ({
             />
             <FormField
               control={form.control}
-              name="assigned_to"
+              name="assignedTo"
               render={({ field }) => (
                 <FormItem className="flex gap-x-3 items-center">
                   <FormLabel className="flex gap-1 items-center mt-2">

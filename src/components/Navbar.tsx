@@ -13,10 +13,11 @@ const Navbar = ({ children }: { children: React.ReactNode }) => {
             height={150}
           />
         </h1>
-        <div className="flex space-x-3 font-medium ">
+        <div className="flex space-x-6 font-medium ">
           <Link href={"/"}>Home</Link>
           <Link href={"/watchlist"}>Watch Lists</Link>
           <Link href={"/"}>Tasks</Link>
+          <Link href={"/settings"}>Settings</Link>
         </div>
       </div>
       {children}

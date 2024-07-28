@@ -7,7 +7,7 @@ export const taskFormSchema = z.object({
   deadline: z.date(),
   priority: z.enum(["Low", "Medium", "High"]),
   status: z.enum(["Not Started", "In Progress", "Completed"]),
-  assigned_to: z.string(),
+  assignedTo: z.string(),
   approved: z.boolean().default(false),
   created_at: z.date().default(new Date()),
 });

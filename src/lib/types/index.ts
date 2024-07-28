@@ -33,7 +33,8 @@ export interface Task {
   priority: "Low" | "Medium" | "High";
   deadline: Date;
   approved: boolean;
-  assigned_to: string;
+  assignedTo: string;
+  cardId: string | null;
   created_at: Date;
 }
 export interface RecommendedTask {
@@ -81,4 +82,14 @@ export interface insertWatchlist {
     createdAt: Date;
   };
   keywords: Keyword[];
+}
+
+export interface Profile {
+  id: string;
+  email: string;
+  username: string;
+  created_at: string;
+  boardId: string | null;
+  accessToken: string | null;
+  listId: string | null;
 }

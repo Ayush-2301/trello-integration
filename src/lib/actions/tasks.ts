@@ -16,13 +16,14 @@ export const getAllTasks = async () => {
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-
+    console.log(data.session?.user.id);
     const response = await fetch(
       `${SERVER_URL}/tasks?user_id=${data.session?.user.id}`,
       {
         method: "GET",
       }
     );
+    console.log(response);
     if (!response.ok) {
       const error: {
         error: string;
@@ -40,6 +41,7 @@ export const getAllTasks = async () => {
 export const getSingleTask = async ({ id }: { id: string }) => {
   try {
     // const { access_token } = await getSession();
+    console.log("called");
     const supabase = createSupabaseServerClient();
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
@@ -60,7 +62,10 @@ export const getSingleTask = async ({ id }: { id: string }) => {
       } = await response.json();
       return error;
     } else {
-      const task: Task[] = await response.json();
+      const x = await response.json();
+      console.log(x);
+      const task: Task[] = x;
+
       return task[0];
     }
   } catch (error) {
@@ -197,13 +202,70 @@ export const getAllTaskByWatchlistID = async ({
   }
 };
 
-export const connectTrello = async () => {
+export const addTaskToTrello = async ({
+  name,
+  desc,
+  access_token,
+  list_id,
+  taskid,
+}: {
+  name: string;
+  desc: string;
+  access_token: string;
+  list_id: string;
+  taskid: string;
+}) => {
   try {
-    const res = await fetch(
-      ` https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&key=${TRELLO_API_KEY}`
-    );
-    console.log(res);
-    const token = await res.json();
-    console.log(token);
-  } catch (error) {}
+    const res = await fetch(`${SERVER_URL}/createCard`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+        desc,
+        list_id,
+        access_token,
+        taskid,
+      }),
+    });
+    if (res.ok) {
+      revalidateTag("tasks");
+      return await res.json();
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
+export const disconnectTaskFromTrello = async ({
+  taskid,
+}: {
+  taskid: string;
+}) => {
+  try {
+    const res = await fetch(`${SERVER_URL}/disconnect`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ taskid }),
+    });
+    if (res.ok) {
+      revalidateTag("tasks");
+      return await res.json();
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+// export const connectTrello = async () => {
+//   try {
+//     const res = await fetch(
+//       ` https://trello.com/1/authorize?expiration=never&scope=read,write,account&response_type=token&key=${TRELLO_API_KEY}`
+//     );
+//     console.log(res);
+//     const token = await res.json();
+//     console.log(token);
+//   } catch (error) {}
+// };
