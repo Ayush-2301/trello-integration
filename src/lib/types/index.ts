@@ -36,6 +36,7 @@ export interface Task {
   assignedTo: string;
   cardId: string | null;
   created_at: Date;
+  card_id: string | null;
 }
 export interface RecommendedTask {
   task_id: string;
@@ -92,4 +93,5 @@ export interface Profile {
   boardId: string | null;
   accessToken: string | null;
   listId: string | null;
+  boardTitle: string;
 }

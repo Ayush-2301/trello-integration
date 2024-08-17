@@ -10,6 +10,11 @@ import { Input as OriginalInput } from "@/components/ui/input";
 import { TaskSelectComponent } from "./TaskSelectComponent";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +25,8 @@ import {
   CalendarIcon,
   EllipsisVertical,
   Plus,
-  Trello,
   Unplug,
+  Info,
 } from "lucide-react";
 import {
   Form,
@@ -94,11 +99,8 @@ const TaskForm = ({
   const { setTaskID, setOpenSheet } = useContext(Context);
   const [open, setOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const title = initialData ? "Edit Task" : "Create Task";
-  const description = initialData
-    ? "Make changes to your task here. Click save when you're done.."
-    : "Create a new custom task and set other parameters";
   const action = initialData ? "Save changes" : "Create";
+  console.log(profile);
   const defaultValues: TaskForm = initialData
     ? initialData
     : {
@@ -199,7 +201,7 @@ const TaskForm = ({
     }
   }, []);
   async function addToTrello() {
-    if (initialData && profile?.accessToken && profile.listId) {
+    if (initialData && profile?.accessToken && profile?.listId) {
       const res = await addTaskToTrello({
         name: initialData.title,
         desc: initialData.description,
@@ -241,13 +243,27 @@ const TaskForm = ({
       />
       <div
         suppressHydrationWarning
-        className="flex flex-col items-start py-4  space-y-8 "
+        className="flex flex-row-reverse items-start py-8  relative  "
       >
-        <div className="flex justify-between  w-full item-start">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">{title}</h2>
-            <p className="text-sm text-muted-foreground">{description}</p>
-          </div>
+        <div className="flex justify-between items-center absolute  space-x-1 w-fit">
+          {profile?.accessToken &&
+            profile.boardId &&
+            profile.boardTitle &&
+            initialData?.cardId && (
+              <HoverCard>
+                <HoverCardTrigger>
+                  <Info className={cn(`w-4 h-4 text-muted-foreground`)} />
+                </HoverCardTrigger>
+                <HoverCardContent
+                  className={cn(
+                    `w-80 text-sm font-normal text-muted-foreground`
+                  )}
+                >
+                  This is task is connected to Trello board:{" "}
+                  {profile?.boardTitle}
+                </HoverCardContent>
+              </HoverCard>
+            )}
           {initialData && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -323,7 +339,7 @@ const TaskForm = ({
           )} */}
         </div>
         <Form {...form}>
-          <form className="w-full space-y-2">
+          <form className="w-full space-y-2 ">
             <FormField
               control={form.control}
               name="title"

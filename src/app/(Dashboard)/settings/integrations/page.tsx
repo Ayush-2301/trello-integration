@@ -3,13 +3,16 @@ import IntegrationForm from "../components/IntegrationForm";
 
 const page = async () => {
   const profile = await getProfile();
-  console.log(profile);
   if (!profile) return null;
-  const { accessToken, boardId } = profile;
+  const { accessToken, boardId, boardTitle } = profile;
 
   return (
     <div>
-      <IntegrationForm accessToken={accessToken} boardId={boardId} />
+      <IntegrationForm
+        accessToken={accessToken}
+        boardId={boardId}
+        boardTitle={boardTitle}
+      />
     </div>
   );
 };

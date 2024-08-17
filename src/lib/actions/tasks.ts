@@ -16,14 +16,16 @@ export const getAllTasks = async () => {
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
     if (!access_token) redirect("/auth");
-    console.log(data.session?.user.id);
     const response = await fetch(
       `${SERVER_URL}/tasks?user_id=${data.session?.user.id}`,
       {
         method: "GET",
+        next: {
+          revalidate: 3600,
+          tags: ["tasks"],
+        },
       }
     );
-    console.log(response);
     if (!response.ok) {
       const error: {
         error: string;
@@ -41,7 +43,6 @@ export const getAllTasks = async () => {
 export const getSingleTask = async ({ id }: { id: string }) => {
   try {
     // const { access_token } = await getSession();
-    console.log("called");
     const supabase = createSupabaseServerClient();
     const { data } = await supabase.auth.getSession();
     const access_token = data.session?.access_token;
@@ -63,7 +64,6 @@ export const getSingleTask = async ({ id }: { id: string }) => {
       return error;
     } else {
       const x = await response.json();
-      console.log(x);
       const task: Task[] = x;
 
       return task[0];
@@ -229,6 +229,7 @@ export const addTaskToTrello = async ({
         taskid,
       }),
     });
+    console.log(res.url);
     if (res.ok) {
       revalidateTag("tasks");
       return await res.json();

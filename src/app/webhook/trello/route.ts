@@ -1,8 +1,16 @@
-import { revalidateTag } from "next/cache";
+import { getAllTasks } from "@/lib/actions/tasks";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { redirect } from "next/navigation";
 
-export async function POST(request: Request) {
-  const body = request.body;
+export async function POST(req: Request, res: Response) {
+  const { origin } = new URL(req.url);
+  const body = req.body;
   console.log(body);
-  if (body) revalidateTag("tasks");
-  return Response.json({ message: "refetch task" });
+  if (body) {
+    console.log("refetching...");
+    revalidateTag("tasks");
+    revalidatePath("/");
+    await getAllTasks();
+  }
+  return Response.json({ message: "refetch task hello" });
 }
